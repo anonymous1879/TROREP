@@ -1,0 +1,99 @@
+digraph G {
+	concentrate=true;
+    node[shape=rectangle, penwidth=1.1, style="filled", margin="0.2,0", colorscheme=set38, fontname="Times-Roman"];
+    edge[fontsize=10, arrowhead=vee, penwidth=1.1];
+    nodesep=0.2; ranksep=0.5;
+
+    subgraph core_data {
+        node[fillcolor=4]
+
+        DATASET [label="Dataset \n (TREC Robust 2004)"];
+        QRELS [label="QRELs"];
+        QUERIES [label="Queries"];
+        EMBEDS [label="Entity Embeddings \n (MMEAD)"];
+		INIT [label="Initial Ranking \n (BM25+RM3)"];
+		ENTRANK [label="Entity Ranking", fillcolor=8, style="filled,dashed", peripheries=2];
+
+		// For general structure
+		{rank=same; QUERIES; EMBEDS;}
+    }
+
+    subgraph python_scripts {
+        node[fillcolor=6, style="filled,rounded", fontname="Courier"]
+
+        LINKING [label="entity_linking.py"];
+        CER [label="create_entity_run.py"];
+        CRD [label="create_rerank_data.py"];
+        MFD [label="split_data_by_fold.py"];
+        MFR [label="split_run_by_fold.py"];
+        MAF [label="make_folds.py"];
+        TRA [label="train.py"];
+        TES [label="test.py"];
+    }
+
+    subgraph data_generation {
+        DATASET -> LINKING;
+    }
+
+    subgraph data_preparation {
+        node[fillcolor=2]
+
+        CO [label="Entity-Linked Dataset"];
+
+        TRD [label="Training Candidates"];
+        TED [label="Eval. Candidates"];
+
+        LINKING -> CO;
+
+        # Create rerank data examples to train on
+        QUERIES -> CRD;
+        CO -> CRD;
+        QRELS -> CRD;
+        INIT -> CRD;
+        ENTRANK -> CRD;
+        EMBEDS -> CRD;
+        CRD -> TED [penwidth=2, color=crimson];
+        CRD:s -> TRD [weight=5];
+    }
+
+    subgraph training_testing {
+        node[fillcolor=2]
+
+        TRDF [label="Train. Candidates (Fold-X)"];
+        TEDF [label="Eval. Candidates (Fold-X)"];
+        TRQF [label="Train. QRELs (Fold-X)"];
+        TEQF [label="Eval. QRELs (Fold-X)"];
+        MOD [label="Model Checkpoint (Fold-X)"];
+        RANKING [label="Final Ranking (Fold-X)", fillcolor=8];
+
+        FOL [label="Fold Instructions"]
+
+        # Making of folds
+        MAF -> FOL
+        FOL -> MFD
+        FOL -> MFR
+
+        TRD -> MFD;
+        TED -> MFD;
+        QRELS -> MFR;
+
+        // Splitting data and qrels by fold
+        MFR -> TRQF;
+        MFR -> TEQF;
+        MFD -> TRDF [weight=10];
+        MFD -> TEDF;
+
+        TRQF -> TRA:e;
+        TRDF -> TRA [weight=10];
+        TRA -> MOD;
+        MOD -> TES;
+        TEQF -> TES:e;
+        TEDF -> TES:w;
+        TES -> RANKING
+    }
+
+    // BM25-based entity ranking
+    INIT -> CER [weight=5];
+    CO -> CER;
+    CER -> ENTRANK;
+}

@@ -1,0 +1,83 @@
+digraph G {
+	concentrate=true;
+    node[shape=rectangle, penwidth=1.1, style="filled", margin="0.2,0", colorscheme=set38, fontname="Times-Roman"];
+    edge[fontsize=10, arrowhead=vee, penwidth=1.1];
+    nodesep=0.2; ranksep=0.5;
+
+    subgraph core_data {
+        node[fillcolor=4];
+
+        DATASET [label="Entity-Linked Dataset \n (TREC Robust 2004)"];
+        QRELS [label="QRELs"];
+        QUERIES [label="Queries"];
+        DESCRIPTIONS [label="Entity Descriptions \n (DBPedia)"];
+    }
+
+    subgraph python_scripts {
+        node[fillcolor=6, style="filled,rounded", fontname="Courier"];
+
+        MED [label="make_entity_data.py"];
+        MEQ [label="make_entity_qrels.py"];
+        MFD [label="split_data_by_fold.py"];
+        MFR [label="split_run_by_fold.py"];
+        TRA [label="train.py"];
+        TES [label="test.py"];
+    }
+
+    subgraph data_preparation {
+        node[fillcolor=2];
+
+		EQRELS [label="Entity QRELs"];
+        TRD [label="Entity Candidates"];
+		FOL [label="Fold Instructions"];
+
+		# Create entity QRELs
+		QRELS -> MEQ [color=crimson, penwidth=2];
+        DATASET -> MEQ;
+        MEQ -> EQRELS [color=crimson, penwidth=2];
+
+        # Create entity rerank data
+        QUERIES -> MED;
+        DESCRIPTIONS -> MED;
+        EQRELS -> MED [color=crimson, penwidth=2];
+
+        MED:s -> TRD [weight=5, color=crimson, penwidth=2];
+    }
+
+    subgraph training_testing {
+        node[fillcolor=2];
+
+        TRDF [label="Train. Candidates (Fold-X)"];
+        TEDF [label="Eval. Candidates (Fold-X)"];
+        TRQF [label="Train. QRELs (Fold-X)"];
+        TEQF [label="Eval. QRELs (Fold-X)"];
+        MOD [label="Model Checkpoint (Fold-X)"];
+        RANKING [label="Entity Ranking (Fold-X)", fillcolor=8];
+
+        # Making of folds
+        FOL -> MFD;
+        FOL -> MFR;
+        EQRELS -> MFR;
+
+        TRD -> MFD [weight=10, color=crimson, penwidth=2];
+
+        # Splitting data and qrels by fold
+        MFR -> TRQF;
+        MFR -> TEQF;
+        MFD -> TRDF [weight=10];
+        MFD -> TEDF [color=crimson, penwidth=2];
+
+        TRQF -> TRA:e;
+        TRDF -> TRA [weight=10];
+        TRA -> MOD;
+        MOD -> TES;
+        TEQF -> TES:e;
+        TEDF -> TES:w [color=crimson, penwidth=2];
+        TES -> RANKING [color=crimson, penwidth=2];
+    }
+
+	EXTERNAL1 [style=invis, height=0, width=0, margin=0];
+	EXTERNAL2 [style=invis, height=0, width=0, margin=0];
+	RANKING -> EXTERNAL1 [style=dashed, color=crimson, penwidth=2];
+	EXTERNAL2 -> FOL [weight=5, style=dashed];
+}
