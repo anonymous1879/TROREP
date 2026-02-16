@@ -5,7 +5,7 @@ These tools are designed to showcase the methodological biases such as score inf
 All scripts provide detailed descriptions and argument definitions using the `--help` flag.
 
 ## Evaluation
-### Bulk TREC Evaluation (`score_trec_eval.py`)
+### Bulk TREC Evaluation
 - **Requires:** [trec_eval](https://github.com/usnistgov/trec_eval)
 - **Refers to:** Section 3.1: Data & Evaluation
 - **Example:** `python analysis/score_trec_eval.py --qrels data/qrels.robust04.txt --ranking data/config-5.run Biased --ranking data/config-6.run Unbiased`
