@@ -1,10 +1,8 @@
 # The Relevance of (Relevant) Entity Presence
 This repository provides the data and analysis suite for our reproduction paper "The Relevance of (Relevant) Entity Presence". \
-Specifically, we investigate:
-- Reproduction of ["Query-specific Document and Entity Representations" (QDER)](https://github.com/shubham526/SIGIR2025-QDER) (SIGIR '25).
-- Analysis of ["Document Re-Ranking Using Entity-based Query Understanding" (DREQ)](https://github.com/shubham526/ECIR2024-DREQ) (ECIR '24).
-
-We provide our complete pipeline for data preparation, model training, and tools to detect methodological biases.
+Specifically:
+- A reproduction of ["Query-specific Document and Entity Representations" (QDER)](https://github.com/shubham526/SIGIR2025-QDER) (SIGIR '25).
+- An analysis of ["Document Re-Ranking Using Entity-based Query Understanding" (DREQ)](https://github.com/shubham526/ECIR2024-DREQ) (ECIR '24).
 
 ## Abstract / Findings
 Query-Specific Document and Entity Representations (QDER) has
